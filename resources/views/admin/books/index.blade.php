@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- h-[calc(100vh-4rem)] --}}
-    <div class="content flex flex-col flex-auto bg-gray-50">
+    <div class="content flex flex-col flex-auto bg-gray-50 w-full">
         <div class="title p-4 ">
             <h3 class="text-xl font-bold">Daftar Koleksi</h3>
             <p class="text-sm">Ini adalah daftar koleksi buku yang tersedia di perpustakaan</p>

@@ -1,4 +1,4 @@
-<div class="flex flex-col bg-teal-950 w-3xs h-screen" x-data="{ active: '{{ Route::currentRouteName() }}' }" x-init="lucide.createIcons()">
+<div class="flex flex-col bg-teal-950 w-96 h-screen" x-data="{ active: '{{ Route::currentRouteName() }}' }" x-init="lucide.createIcons()">
 
     <div class="flex items-center space-x-3 p-4">
         <i data-lucide="library" class="w-8 h-8 text-teal-400"></i>
@@ -11,7 +11,7 @@
 
     @php
         $menu = [
-            ['label' => 'Beranda', 'name' => 'dashboard', 'icon' => 'home'],
+            ['label' => 'Beranda', 'name' => 'dashboard.index', 'icon' => 'home'],
             ['label' => 'Buku', 'name' => 'books.index', 'icon' => 'book-open'],
             ['label' => 'Kategori', 'name' => 'categories.index', 'icon' => 'list'],
             // ['label' => 'Peminjaman', 'name' => 'loans.index', 'icon' => 'clipboard-list'],

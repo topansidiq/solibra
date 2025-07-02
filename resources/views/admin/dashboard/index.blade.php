@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="content flex flex-col flex-auto bg-gray-50">
+    <div class="content flex flex-col flex-auto bg-gray-50 w-full">
 
         {{-- Page Title --}}
         <div class="title p-4">
@@ -16,12 +16,11 @@
             <div class="flex flex-row">
 
                 {{-- Add new book button --}}
-                <div x-data="{ open: true }">
+                <div x-data="{ open: false }">
                     <button @click="open = true">Tambah Buku</button>
 
-                    <div id="modal-add-book" class="bg-white shadow-2xl rounded-lg fixed top-32 lef1-1/2 w-1/2"
-                        x-show="open">
-                        <div class="bg-teal-950 w-full p-4 rounded-t-lg cursor-move" id="modal-add-book-header">
+                    <div class="modal-add bg-white shadow-2xl rounded-lg fixed top-32 lef1-1/2 w-1/2" x-show="open">
+                        <div class="bg-teal-950 w-full p-4 rounded-t-lg cursor-move modal-add-header">
                             <h2 class="text-xl font-bold flex align-middle justify-between">
                                 <span class="block text-white">Tambah Buku Baru</span>
                                 <button @click="open=false"><i class="block w-6 h-6 text-white text-sm cursor-pointer"
@@ -29,7 +28,7 @@
                             </h2>
                         </div>
 
-                        <form action="" method="POST" enctype="multipart/form-data"
+                        <form action="{{ route('books.store') }}" method="POST" enctype="multipart/form-data"
                             class="grid grid-cols-2 gap-4 p-5 w-full">
                             @csrf
 
@@ -68,19 +67,7 @@
                                     placeholder="Contoh: 987654321">
                             </div>
 
-
                             <div>
-                                {{-- <label for="categories" class="block font-semibold">Kategori</label>
-                                <select name="categories[]" id="categories" multiple class="form-select w-full">
-                                    @foreach ($categories as $category)
-                                        <option class="text-sm" value="{{ $category->id }}">
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-gray-500">Tekan Ctrl (atau Cmd) untuk memilih lebih dari satu.</small> --}}
-
-
                                 <div x-data="categorySearch({{ $categories->sortByDesc('books_count')->values()->toJson() }})" class="relative">
                                     <label for="keyword" class="block font-semibold">Kategori</label>
                                     <input type="text" x-model="search" @focus="show = true"
@@ -137,6 +124,49 @@
                                     class="form-input w-full border-b border-slate-400 focus: outline-0 p-2 placeholder: text-sm">
                             </div>
 
+                            <div class="col-span-2">
+                                <label for="description" class="block font-semibold">Deskripsi</label>
+                                <input type="text" name="description" id="description"
+                                    placeholder="Bagian ini bisa di isi dengan sinopsis atau abstrak"
+                                    class="form-input w-full pb-32 border-b border-slate-400 focus: outline-0 placeholder:text-sm placeholder:text-center" />
+                            </div>
+
+                            <div class="col-span-2 pt-4 flex flex-row content-end gap-4 justify-end-safe">
+                                <button @click="open = false"
+                                    class="block rounded-sm font-bold bg-red-500 px-3 py-1 w-28 text-white hover:scale-105 transition-all">Batal</button>
+                                <button type="submit"
+                                    class="bg-emerald-700 px-3 py-1 rounded-sm font-bold text-white block w-28 hover:scale-105 transition-all">
+                                    Simpan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                {{-- Add new category button --}}
+                <div x-data="{ open: false }">
+                    <button @click="open = true">Tambah Kategori</button>
+
+                    <div class="modal-add bg-white shadow-2xl rounded-lg fixed top-32 lef1-1/2 w-fit" x-show="open">
+                        <div class="bg-teal-950 w-full p-4 rounded-t-lg cursor-move modal-add-header">
+                            <h2 class="text-xl font-bold flex align-middle justify-between">
+                                <span class="block text-white">Tambah Kategori Baru</span>
+                                <button @click="open=false"><i class="block w-6 h-6 text-white text-sm cursor-pointer"
+                                        data-lucide="x"></i></button>
+                            </h2>
+                        </div>
+
+                        <form action="{{ route('categories.store') }}" method="POST" enctype="multipart/form-data"
+                            class="grid grid-cols-2 gap-4 p-5 w-full">
+                            @csrf
+
+                            <div>
+                                <label for="name" class="block font-semibold">Kategori</label>
+                                <input type="text" name="name" id="name"
+                                    class="form-input w-full border-b border-slate-400 focus: outline-0 p-2 placeholder: text-sm"
+                                    placeholder="Contoh: Pemrograman Web" required>
+                            </div>
+
                             <div class="col-span-2 pt-4 flex flex-row content-end gap-4 justify-end-safe">
                                 <button @click="open = false"
                                     class="block rounded-sm font-bold bg-red-500 px-3 py-1 w-28 text-white hover:scale-105 transition-all">Batal</button>
@@ -150,7 +180,6 @@
 
                 </div>
 
-                {{-- Add new category button --}}
                 {{-- Add new loan button --}}
                 {{-- Add new user button --}}
                 {{-- Add new event button --}}
@@ -163,11 +192,25 @@
         {{-- New Book --}}
         <div class="mx-4 p-4 shadow rounded-xl bg-white text-sm text-slate-800 w-fit h-fit">
             <h2 class="text-lg font-bold">Buku Terbaru</h2>
-            <ul class="py-2 grid grid-cols-6 gap-2">
+
+            <div class="py-2 grid xl:grid-cols-6 gap-2 sm:grid-cols-3" x-data="{ open: false, book: {} }" x-ref="modal">
                 @forelse ($latestBooks as $book)
-                    <li class="border border-slate-200 p-4">
+                    <div class="border border-slate-200 p-4 book cursor-pointer hover:shadow-md transition"
+                        @click="open = true; book = {
+                            title: '{{ $book->title }}',
+                            author: '{{ $book->author }}',
+                            publisher: '{{ $book->publisher }}',
+                            year: '{{ $book->year }}',
+                            isbn: '{{ $book->isbn }}',
+                            stock: '{{ $book->stock }}',
+                            description: '{{ $book->description }}',
+                            cover: '{{ $book->cover ? asset('storage/covers/' . $book->cover) : '' }}',
+                            initial: '{{ $book->initial }}',
+                            categories: '{{ $book->categories->pluck('name')->join(', ') }}',
+                            created_at: '{{ $book->created_at->format('d M Y') }}'
+                        }">
                         <div
-                            class="w-48 h-70 bg-teal-600 text-white flex items-center justify-center rounded shadow text-3xl font-bold">
+                            class="xl:h-70 sm:h-40 bg-teal-600 text-white flex items-center justify-center rounded shadow text-3xl font-bold">
                             @if ($book->cover)
                                 <img src="{{ asset('storage/covers/' . $book->cover) }}" alt="{{ $book->title }}"
                                     class="w-full h-full object-cover rounded-xl">
@@ -176,8 +219,8 @@
                             @endif
                         </div>
                         <div class="pt-2">
-                            <strong class="">{{ $book->title }}</strong><br>
-
+                            <strong>{{ $book->title }}</strong><br>
+                            <p class="text-xs"> {{ $book->author }} </p>
                             <p class="text-xs">
                                 @foreach ($book->categories as $category)
                                     {{ $category->name }},
@@ -185,13 +228,74 @@
                             </p>
                             <span class="text-xs text-slate-500">Ditambahkan pada
                                 {{ $book->created_at->format('d M Y') }}</span>
-
                         </div>
-                    </li>
+                    </div>
                 @empty
                     <li>Tidak ada buku terbaru.</li>
                 @endforelse
-            </ul>
+
+                {{-- Modal --}}
+                <div x-show="open" x-transition class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    style="display: none;">
+                    <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/2 relative" @click.away="open = false">
+                        <!-- Tombol Tutup -->
+                        <button class="absolute top-4 right-4 text-slate-500 hover:text-red-500" @click="open = false">
+                            <i data-lucide="x"></i>
+                        </button>
+
+                        <!-- Judul dan Penulis -->
+                        <div class="flex flex-col mb-4">
+                            <h2 class="text-xl font-semibold" x-text="book.title"></h2>
+                            <span class="text-xs text-slate-600" x-text="book.author"></span>
+                        </div>
+
+                        <!-- Cover atau Inisial -->
+                        <template x-if="book.cover">
+                            <img :src="book.cover" alt="Book Cover" class="w-full h-64 object-cover rounded mb-4" />
+                        </template>
+                        <template x-if="!book.cover">
+                            <div class="w-full h-64 bg-teal-600 text-white flex items-center justify-center rounded text-5xl font-bold mb-4"
+                                x-text="book.initial"></div>
+                        </template>
+
+                        <!-- Info Buku -->
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                                <strong>Penerbit</strong>
+                                <span class="block text-xs text-slate-700" x-text="book.publisher"></span>
+                            </div>
+                            <div>
+                                <strong>Tahun</strong>
+                                <span class="block text-xs text-slate-700" x-text="book.year"></span>
+                            </div>
+                            <div>
+                                <strong>ISBN</strong>
+                                <span class="block text-xs text-slate-700" x-text="book.isbn"></span>
+                            </div>
+                            <div>
+                                <strong>Stok</strong>
+                                <span class="block text-xs text-slate-700" x-text="book.stock"></span>
+                            </div>
+                            <div>
+                                <strong>Kategori</strong>
+                                <span class="block text-xs text-slate-700" x-text="book.categories"></span>
+                            </div>
+                            <div>
+                                <strong>Ditambahkan</strong>
+                                <span class="block text-xs text-slate-700" x-text="book.created_at"></span>
+                            </div>
+                        </div>
+
+                        <!-- Deskripsi -->
+                        <div class="mt-4 text-sm">
+                            <h3 class="font-bold mb-1">Deskripsi</h3>
+                            <p class="text-xs text-slate-700" x-text="book.description"></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
         {{-- Activity --}}
