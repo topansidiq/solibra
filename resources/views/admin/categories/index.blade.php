@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="content flex flex-col flex-auto bg-gray-50">
+    <div class="content flex flex-col flex-auto bg-gray-50 w-full">
         <div class="title p-4">
             <h3 class="text-xl font-bold">Daftar Kategori</h3>
             <p class="text-sm">Ini adalah daftar kategori buku yang tersedia di perpustakaan</p>

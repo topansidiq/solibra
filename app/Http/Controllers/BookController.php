@@ -15,4 +15,32 @@ class BookController extends Controller
 
         return view("admin.books.index", compact("books"));
     }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string',
+            'author' => 'required|string',
+            'publisher' => 'nullable|string',
+            'year' => 'nullable|integer',
+            'isbn' => 'nullable|string',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
+            'stock' => 'nullable|integer|min:0',
+            'description' => 'nullable|string',
+            'cover' => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('cover')) {
+            $validated['cover'] = $request->file('cover')->store('covers', 'public');
+        }
+
+        $book = Book::create($validated);
+
+        if ($request->has('categories')) {
+            $book->categories()->sync($request->categories);
+        }
+
+        return redirect()->route('books.index')->with('success', 'Buku berhasil ditambahkan.');
+    }
 }

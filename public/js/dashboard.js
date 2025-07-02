@@ -38,27 +38,36 @@ function categorySearch(data) {
     };
 }
 
-const modal = document.getElementById("modal-add-book");
-const header = document.getElementById("modal-add-book-header");
+const modals = document.querySelectorAll(".modal-add");
+const headers = document.querySelectorAll(".modal-add-header");
 
 let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
-header.addEventListener("mousedown", (e) => {
-    isDragging = true;
-    const rect = modal.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
+headers.forEach((header, i) => {
+    let modal = modals.item(i);
+    header.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        const rect = modal.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        modal.style.left = `${e.clientX - offsetX}px`;
+        modal.style.top = `${e.clientY - offsetY}px`;
+        modal.style.transform = "none";
+    });
+
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+    });
 });
 
-document.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-    modal.style.left = `${e.clientX - offsetX}px`;
-    modal.style.top = `${e.clientY - offsetY}px`;
-    modal.style.transform = "none";
-});
+const books = document.querySelectorAll(".book");
 
-document.addEventListener("mouseup", () => {
-    isDragging = false;
+books.forEach((book, i) => {
+    book.get;
 });
