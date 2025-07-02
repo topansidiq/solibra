@@ -12,7 +12,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $books = Book::all();
-        $categories = Category::all();
+        $categories = Category::withCount('books')->get();
         $books_count = Book::count();
         $categories_count = Category::count();
         $selectedCategories = $request->input("categories", []);

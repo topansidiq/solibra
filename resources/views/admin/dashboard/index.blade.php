@@ -3,8 +3,8 @@
 @section('content')
     <div class="content flex flex-col flex-auto bg-gray-50 w-full">
 
-        {{-- Page Title --}}
-        <div class="title p-4">
+        {{-- Page Header --}}
+        <div class="title p-4 flex items-center justify-between">
 
             {{-- Title --}}
             <div class="">
@@ -13,13 +13,18 @@
             </div>
 
             {{-- Action --}}
-            <div class="flex flex-row">
+            <div class="flex flex-row gap-3">
 
                 {{-- Add new book button --}}
                 <div x-data="{ open: false }">
-                    <button @click="open = true">Tambah Buku</button>
+                    <div @click="open = true"
+                        class="flex flex-row items-center justify-around rounded-md cursor-pointer px-2 py-1 bg-teal-950 text-slate-200">
+                        <i data-lucide="plus" class="block w-5 h-5"></i>
+                        <p class="text-sm">Tambah Buku</p>
+                    </div>
 
-                    <div class="modal-add bg-white shadow-2xl rounded-lg fixed top-32 lef1-1/2 w-1/2" x-show="open">
+                    <div x-cloak x-transition class="modal-add bg-white shadow-2xl rounded-lg fixed top-32 left-52 w-1/2"
+                        x-show="open">
                         <div class="bg-teal-950 w-full p-4 rounded-t-lg cursor-move modal-add-header">
                             <h2 class="text-xl font-bold flex align-middle justify-between">
                                 <span class="block text-white">Tambah Buku Baru</span>
@@ -101,7 +106,7 @@
                                                 class="bg-teal-100 text-teal-800 px-2 py-1 rounded text-sm flex items-center">
                                                 <span x-text="cat.name"></span>
                                                 <button type="button" class="ml-2" @click="remove(cat.id)">
-                                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                                    x
                                                 </button>
                                                 <input type="hidden" name="categories[]" :value="cat.id">
                                             </div>
@@ -126,9 +131,9 @@
 
                             <div class="col-span-2">
                                 <label for="description" class="block font-semibold">Deskripsi</label>
-                                <input type="text" name="description" id="description"
+                                <textarea name="description" id="description" rows="5"
                                     placeholder="Bagian ini bisa di isi dengan sinopsis atau abstrak"
-                                    class="form-input w-full pb-32 border-b border-slate-400 focus: outline-0 placeholder:text-sm placeholder:text-center" />
+                                    class="form-textarea w-full border-b border-slate-400 focus: outline-0 placeholder:text-sm placeholder:text-center resize-y"></textarea>
                             </div>
 
                             <div class="col-span-2 pt-4 flex flex-row content-end gap-4 justify-end-safe">
@@ -143,11 +148,17 @@
                     </div>
 
                 </div>
+
                 {{-- Add new category button --}}
                 <div x-data="{ open: false }">
-                    <button @click="open = true">Tambah Kategori</button>
+                    <div @click="open = true"
+                        class="flex flex-row items-center justify-around cursor-pointer rounded-md px-2 py-1 bg-teal-950 text-slate-200">
+                        <i data-lucide="plus" class="block w-5 h-5"></i>
+                        <p class="text-sm">Tambah Kategori</p>
+                    </div>
 
-                    <div class="modal-add bg-white shadow-2xl rounded-lg fixed top-32 lef1-1/2 w-fit" x-show="open">
+                    <div x-cloak x-transition class="modal-add bg-white shadow-2xl rounded-lg fixed top-32 left-52 w-fit"
+                        x-show="open">
                         <div class="bg-teal-950 w-full p-4 rounded-t-lg cursor-move modal-add-header">
                             <h2 class="text-xl font-bold flex align-middle justify-between">
                                 <span class="block text-white">Tambah Kategori Baru</span>
@@ -190,25 +201,25 @@
         </div>
 
         {{-- New Book --}}
-        <div class="mx-4 p-4 shadow rounded-xl bg-white text-sm text-slate-800 w-fit h-fit">
+        <div class="mx-4 p-4 shadow rounded-xl bg-white text-sm text-slate-800 w-auto h-fit">
             <h2 class="text-lg font-bold">Buku Terbaru</h2>
 
             <div class="py-2 grid xl:grid-cols-6 gap-2 sm:grid-cols-3" x-data="{ open: false, book: {} }" x-ref="modal">
                 @forelse ($latestBooks as $book)
                     <div class="border border-slate-200 p-4 book cursor-pointer hover:shadow-md transition"
-                        @click="open = true; book = {
-                            title: '{{ $book->title }}',
-                            author: '{{ $book->author }}',
-                            publisher: '{{ $book->publisher }}',
-                            year: '{{ $book->year }}',
-                            isbn: '{{ $book->isbn }}',
-                            stock: '{{ $book->stock }}',
-                            description: '{{ $book->description }}',
-                            cover: '{{ $book->cover ? asset('storage/covers/' . $book->cover) : '' }}',
-                            initial: '{{ $book->initial }}',
-                            categories: '{{ $book->categories->pluck('name')->join(', ') }}',
-                            created_at: '{{ $book->created_at->format('d M Y') }}'
-                        }">
+                        @click="open = true; book = {{ json_encode([
+                            'title' => $book->title,
+                            'author' => $book->author,
+                            'publisher' => $book->publisher,
+                            'year' => $book->year,
+                            'isbn' => $book->isbn,
+                            'stock' => $book->stock,
+                            'description' => $book->description,
+                            'cover' => $book->cover ? asset('storage/covers/' . $book->cover) : '',
+                            'initial' => $book->initial,
+                            'categories' => $book->categories->pluck('name')->join(', '),
+                            'created_at' => $book->created_at->format('d M Y'),
+                        ]) }}">
                         <div
                             class="xl:h-70 sm:h-40 bg-teal-600 text-white flex items-center justify-center rounded shadow text-3xl font-bold">
                             @if ($book->cover)

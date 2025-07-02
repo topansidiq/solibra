@@ -7,7 +7,7 @@ function categorySearch(data) {
 
         get filtered() {
             if (!this.search.trim()) {
-                return this.all.slice(0, 10); // Tampilkan 10 kategori teratas saat awal
+                return this.all.slice(0, 10);
             }
             return this.all.filter((cat) =>
                 cat.name.toLowerCase().startsWith(this.search.toLowerCase())
@@ -17,6 +17,7 @@ function categorySearch(data) {
         select(cat) {
             if (!this.selected.some((c) => c.id === cat.id)) {
                 this.selected.push(cat);
+                setTimeout(() => lucide.createIcons(), 0); // fallback
             }
             this.resetSearch();
         },
@@ -29,11 +30,12 @@ function categorySearch(data) {
 
         remove(id) {
             this.selected = this.selected.filter((c) => c.id !== id);
+            setTimeout(() => lucide.createIcons(), 0); // fallback
         },
 
         resetSearch() {
             this.search = "";
-            this.show = true; // untuk memicu ulang pencarian
+            this.show = true;
         },
     };
 }
@@ -64,10 +66,4 @@ headers.forEach((header, i) => {
     document.addEventListener("mouseup", () => {
         isDragging = false;
     });
-});
-
-const books = document.querySelectorAll(".book");
-
-books.forEach((book, i) => {
-    book.get;
 });

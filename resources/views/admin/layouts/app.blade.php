@@ -17,6 +17,7 @@
 
     {{-- JS --}}
     <script src="{{ asset('js/dashboard.js') }}"></script>
+    <script src="{{ asset('js/book.js') }}"></script>
 </body>
 
 </html>
