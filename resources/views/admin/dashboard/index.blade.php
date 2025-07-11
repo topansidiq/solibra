@@ -191,7 +191,113 @@
 
                 </div>
 
-                {{-- Add new loan button --}}
+                {{-- Add new borrow button --}}
+                <div x-data="{ open: false }">
+                    <div @click="open = true"
+                        class="flex flex-row items-center justify-around cursor-pointer rounded-md px-2 py-1 bg-teal-950 text-slate-200">
+                        <i data-lucide="plus" class="block w-5 h-5"></i>
+                        <p class="text-sm">Tambah Peminjaman</p>
+                    </div>
+
+                    <div x-cloak x-transition class="modal-add bg-white shadow-2xl rounded-lg fixed top-32 left-52 w-fit"
+                        x-show="open">
+                        <div class="bg-teal-950 w-full p-4 rounded-t-lg cursor-move modal-add-header">
+                            <h2 class="text-xl font-bold flex align-middle justify-between">
+                                <span class="block text-white">Tambah Peminjaman Baru</span>
+                                <button @click="open=false"><i class="block w-6 h-6 text-white text-sm cursor-pointer"
+                                        data-lucide="x"></i></button>
+                            </h2>
+                        </div>
+
+                        <form action="{{ route('borrows.store') }}" method="POST"
+                            class="grid grid-cols-2 gap-4 p-5 w-full">
+                            @csrf
+
+                            {{-- Select Book --}}
+                            <div x-data="bookSearch({{ $books->sortByDesc('stock')->values()->toJson() }})" x-init="window.bookSearchInstance = $data" class="relative">
+                                <label for keyword class="block font-semibold">Pilih Buku</label>
+                                <input type="text" x-model="search" @focus="show = true"
+                                    @keydown.tab.prevent="selectFirst()" @keydown.enter.prevent="selectFirst()"
+                                    @click.outside="show = false" id="keyword" name="keyword"
+                                    placeholder="Cari buku..."
+                                    class="form-input w-full border-b border-slate-400 focus:outline-0 p-2 placeholder:text-sm">
+
+                                {{-- Dropdown --}}
+                                <div x-show="show && filtered.length > 0"
+                                    class="absolute w-full bg-white shadow border mt-1 rounded z-50 max-h-60 overflow-y-auto">
+                                    <template x-for="(book, index) in filtered" :key="book.id">
+                                        <div @click="select(book)"
+                                            class="px-4 py-2 text-sm hover:bg-teal-100 cursor-pointer">
+                                            <span x-text="book.title"></span>
+                                            <span class="text-xs text-gray-500"
+                                                x-text="'(' + book.stock + ' stock)'"></span>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <input type="hidden" name="book_id" :value="book_id">
+                            </div>
+
+                            {{-- Select User --}}
+                            <div x-data="userSearch({{ $users->values()->toJson() }})" x-init="window.userSearchInstance = $data" class="relative">
+                                <label for keyword class="block font-semibold">Pilih Pengguna</label>
+                                <input type="text" x-model="search" @focus="show = true"
+                                    @keydown.tab.prevent="selectFirst()" @keydown.enter.prevent="selectFirst()"
+                                    @click.outside="show = false" id="keyword" name="keyword"
+                                    placeholder="Cari buku..."
+                                    class="form-input w-full border-b border-slate-400 focus:outline-0 p-2 placeholder:text-sm">
+
+                                {{-- Dropdown --}}
+                                <div x-show="show"
+                                    class="absolute w-full bg-white shadow border mt-1 rounded z-50 max-h-60 overflow-y-auto">
+                                    <template x-for="(user, index) in filtered" :key="user.id">
+                                        <div @click="select(user)"
+                                            class="px-4 py-2 text-sm hover:bg-teal-100 cursor-pointer">
+                                            <span x-text="user.name"></span>
+                                            <span class="text-xs text-gray-500" x-text="'(' + user.email + ')'"></span>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <input class="text-xs" type="hidden" name="user_id" :value="user_id">
+                            </div>
+
+                            <!-- Tanggal Pengembalian -->
+                            @php
+                                $dueDate = now()->addDays(7)->locale('id')->translatedFormat('d F Y');
+                            @endphp
+
+                            <div>
+                                <label class="block font-semibold">Harus dikembalikan pada</label>
+                                <input type="date" readonly name="due_date"
+                                    value="{{ now()->addDays(7)->toDateString() }}">
+                                <p class="text-sm text-gray-700 mt-1">
+                                    (otomatis 7 hari setelah tanggal peminjaman)
+                                </p>
+                            </div>
+
+                            <input type="hidden" name="borrowed_at" value="{{ now()->toDateString() }}">
+
+                            <!-- Tombol -->
+                            <div class="col-span-2 pt-4 flex justify-end gap-4">
+                                <button type="reset"
+                                    class="block rounded-sm font-bold bg-red-500 px-3 py-1 w-28 text-white hover:scale-105 transition-all">
+                                    Reset
+                                </button>
+                                <button type="button" @click="openAddborrowModal = false"
+                                    class="block rounded-sm font-bold bg-red-500 px-3 py-1 w-28 text-white hover:scale-105 transition-all">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                    class="bg-emerald-700 px-3 py-1 rounded-sm font-bold text-white block w-28 hover:scale-105 transition-all">
+                                    Simpan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
                 {{-- Add new user button --}}
                 {{-- Add new event button --}}
                 {{-- Add new post button --}}
@@ -320,6 +426,14 @@
                 <div class="border border-slate-200 w-60 h-60 content-center text-center p-10 rounded-xl">
                     <h3>Total Kategori</h3>
                     <p class="text-6xl font-bold">{{ $categories_count }}</p>
+                </div>
+                <div class="border border-slate-200 w-60 h-60 content-center text-center p-10 rounded-xl">
+                    <h3>Total Buku Dipinjam</h3>
+                    <p class="text-6xl font-bold">{{ $borrows_count }}</p>
+                </div>
+                <div class="border border-slate-200 w-60 h-60 content-center text-center p-10 rounded-xl">
+                    <h3>Total Pengguna Terdaftar</h3>
+                    <p class="text-6xl font-bold">{{ $users_count }}</p>
                 </div>
             </div>
         </div>

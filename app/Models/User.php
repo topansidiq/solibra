@@ -19,8 +19,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'role', // Added role attribute
         'email',
         'password',
+        'phone_number',
     ];
 
     /**
@@ -32,6 +34,11 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function borrows()
+    {
+        return $this->hasMany(Borrow::class);
+    }
 
     /**
      * Get the attributes that should be cast.

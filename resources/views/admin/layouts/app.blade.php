@@ -16,8 +16,9 @@
     </div>
 
     {{-- JS --}}
-    <script src="{{ asset('js/dashboard.js') }}"></script>
-    <script src="{{ asset('js/book.js') }}"></script>
+    <script src="{{ asset('js/admin/dashboard.js') }}"></script>
+    <script src="{{ asset('js/admin/book.js') }}"></script>
+    <script src="{{ asset('js/admin/borrow.js') }}"></script>
 </body>
 
 </html>
