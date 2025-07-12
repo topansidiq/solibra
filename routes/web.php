@@ -12,6 +12,7 @@ Route::get('/', function () {
 // Route Resource
 Route::resource('books', BookController::class);
 Route::resource('categories', CategoryController::class);
+Route::resource('makan', CategoryController::class);
 
 // Simple Get
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
