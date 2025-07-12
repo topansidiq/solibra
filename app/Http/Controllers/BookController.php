@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class BookController extends Controller
 {
@@ -47,7 +48,6 @@ class BookController extends Controller
         }
     }
 
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -78,25 +78,47 @@ class BookController extends Controller
 
     public function update(Request $request, Book $book)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'publisher' => 'nullable|string|max:255',
-            'year' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'isbn' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'stock' => 'nullable|integer|min:0',
-            'categories' => 'nullable|array',
-            'categories.*' => 'exists:categories,id',
-            'cover' => 'nullable|image|max:2048',
-        ]);
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'author' => 'required|string|max:255',
+                'publisher' => 'nullable|string|max:255',
+                'year' => 'nullable|integer|min:1900|max:' . date('Y'),
+                'isbn' => 'nullable|string|max:255',
+                'description' => 'nullable|string',
+                'stock' => 'nullable|integer|min:0',
+                'categories' => 'nullable|array',
+                'categories.*' => 'exists:categories,id',
+                'cover' => 'nullable|image|max:2048',
+            ]);
 
-        $book->update($validated);
+            // Update buku
+            $book->update($validated);
 
-        return response()->json([
-            'message' => 'Buku berhasil diperbarui!',
-            'book' => $book,
-        ]);
+            // Sync kategori
+            $book->categories()->sync($request->categories ?? []);
+
+            return redirect()->route('books.index')->with('success', 'Buku berhasil diperbarui.');
+        } catch (Throwable $e) {
+            // Log error untuk debugging
+            Log::error('Gagal update buku', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat memperbarui buku.',
+                'error' => $e->getMessage(), // Bisa dihapus di production
+            ], 500);
+        }
+    }
+
+
+    public function edit(Book $book)
+    {
+        $book = Book::findOrFail($book->id);
+        $categories = Category::all();
+        return view('admin.books.edit', compact('book', "categories"));
     }
 
     public function destroy(Book $book)
@@ -113,45 +135,5 @@ class BookController extends Controller
         $book->delete();
 
         return redirect()->route('books.index')->with('success', 'Buku berhasil dihapus.');
-    }
-
-    // public function autocomplete(Request $request)
-    // {
-    //     $q = $request->get('q');
-    //     $filter = $request->get('filter', 'title');
-
-    //     $query = Book::query();
-
-    //     if (in_array($filter, ['title', 'isbn', 'author', 'publisher'])) {
-    //         $query->where($filter, 'like', $q . '%');
-    //     }
-
-    //     $books = $query->latest()->limit(10)->get();
-
-    //     return response()->json($books->map(function ($book) {
-    //         return [
-    //             'id' => $book->id,
-    //             'title' => $book->title,
-    //             'author' => $book->author,
-    //             'isbn' => $book->isbn,
-    //             'stock' => $book->stock,
-    //         ];
-    //     }));
-    // }
-
-    public function search(Request $request)
-    {
-        $query = $request->get('query');
-        $books = Book::where('title', 'like',   $query . '%')
-            ->orWhere('author', 'like',  $query . '%')
-            ->orWhere('isbn', 'like',  $query . '%')
-            ->orWhere('publisher', 'like',  $query . '%')->orderBy('created_at', 'desc')->take(10)->get();
-
-        return response()->json($books);
-    }
-
-    public function show(Book $book)
-    {
-        return view('admin.books.show', compact('book'));
     }
 }

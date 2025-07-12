@@ -13,7 +13,7 @@ Route::get('/', function () {
 
 // Simple Get
 Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
-Route::get('/books/search', [BookController::class, 'search']);
+Route::get('/books/search', [BookController::class, 'search'])->name('books.search');
 Route::patch('/borrows/{borrow}/confirm', [BorrowController::class, 'confirm'])->name('borrows.confirm');
 Route::patch('/borrows/{borrow}/return', [BorrowController::class, 'return'])->name('borrows.return');
 Route::patch('/borrows/{borrow}/overdue', [BorrowController::class, 'overdue'])->name('borrows.overdue');

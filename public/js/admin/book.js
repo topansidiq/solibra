@@ -58,6 +58,15 @@ document.querySelectorAll(".modal-add-header").forEach((header, i) => {
     });
 });
 
+// Edit Book
+function editBook(data) {
+    return {
+        show: false,
+        books: data,
+        modal(elements = []) {},
+    };
+}
+
 // Dropdown Filter Search
 function filterSearch() {
     return {
@@ -73,7 +82,11 @@ function filterSearch() {
                 this.showDropdown = false;
                 return;
             }
-            fetch(`/books/search?query=${this.search.charAt(0)}`).then((res) =>
+            fetch(
+                `/books/search?query=${encodeURIComponent(
+                    this.search.charAt(0)
+                )}`
+            ).then((res) =>
                 res.json().then((data) => {
                     this.books = data;
                     this.showDropdown = true;
@@ -95,6 +108,46 @@ function filterSearch() {
             if (focusAfter) return;
             this.open = false;
             focusAfter && focusAfter.focus();
+        },
+    };
+}
+
+function bookSearch(data) {
+    return {
+        all: data,
+        search: "",
+        show: false,
+        selected: [],
+
+        get filtered() {
+            if (!this.search.trim()) {
+                return this.all.slice(0, 10);
+            }
+            return this.all.filter((book) =>
+                book.title.toLowerCase().startsWith(this.search.toLowerCase())
+            );
+        },
+
+        select(book) {
+            if (!this.selected.some((b) => b.id === book.id)) {
+                this.selected.push(book);
+            }
+            this.resetSearch();
+        },
+
+        selectFirst() {
+            if (this.filtered.length) {
+                this.select(this.filtered[0]);
+            }
+        },
+
+        remove(id) {
+            this.selected = this.selected.filter((b) => b.id !== id);
+        },
+
+        resetSearch() {
+            this.search = "";
+            this.show = true;
         },
     };
 }

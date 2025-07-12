@@ -1,9 +1,9 @@
-function categorySearch(data) {
+function categorySearch(allCategories, selectedItems = []) {
     return {
-        all: data,
+        all: allCategories,
         search: "",
         show: false,
-        selected: [],
+        selected: selectedItems,
 
         get filtered() {
             if (!this.search.trim()) {
@@ -15,11 +15,11 @@ function categorySearch(data) {
         },
 
         select(cat) {
-            if (!this.selected.some((c) => c.id === cat.id)) {
+            if (!this.selected.find((c) => c.id === cat.id)) {
                 this.selected.push(cat);
-                setTimeout(() => lucide.createIcons(), 0); // fallback
             }
-            this.resetSearch();
+            this.search = "";
+            this.show = false;
         },
 
         selectFirst() {

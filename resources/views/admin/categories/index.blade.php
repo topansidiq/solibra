@@ -32,7 +32,7 @@
                         <div>
                             <label for="name" class="block font-semibold">Kategori</label>
                             <input type="text" name="name" id="name"
-                                class="form-input w-full border-b border-slate-400 focus: outline-0 p-2 placeholder: text-sm"
+                                class="form-input w-96 border-b border-slate-400 focus:outline-0 p-2 placeholder: text-sm"
                                 placeholder="Contoh: Pemrograman Web" required>
                         </div>
 

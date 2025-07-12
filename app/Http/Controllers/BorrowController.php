@@ -138,6 +138,7 @@ class BorrowController extends Controller
      */
     public function destroy(Borrow $borrow)
     {
-        //
+        $borrow->delete();
+        return redirect()->route('borrows.index')->with('success', 'Peminjaman berhasil dihapus.');
     }
 }
